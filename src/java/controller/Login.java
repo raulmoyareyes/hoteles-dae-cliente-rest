@@ -4,6 +4,10 @@
  */
 package controller;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 import java.io.IOException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -11,6 +15,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import modelos.Operador;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 /**
  *
@@ -32,20 +38,25 @@ public class Login extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
+        DefaultClientConfig defaultClientConfig = new DefaultClientConfig();
+        defaultClientConfig.getClasses().add(JacksonJsonProvider.class);
+        Client cliente = Client.create(defaultClientConfig);
+
         /// comprobaciones para redirigir
         if (request.getParameter("login") != null) {
-            // hay que redirigir al controlador operador.
-            // la añadir la contraseña
-//            Operador op = servicioOperador.login(request.getParameter("cif"), null);
 
-//            if (op != null) {
-//                request.getSession().setAttribute("operador", op);
-//                response.sendRedirect("operador/listadousuarios");
-//            } else {
-//                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/login/index.jsp");
-//                rd.forward(request, response);
-//            }
+            WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/login").queryParam("usuario", request.getParameter("cif"));
+            ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
 
+            Operador op = responseJSON.getEntity(Operador.class);
+
+            if (op != null) {
+                request.getSession().setAttribute("operador", op);
+                response.sendRedirect("operador/listadousuarios");
+            } else {
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/login/index.jsp");
+                rd.forward(request, response);
+            }
         } else {
 
             RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/login/index.jsp");

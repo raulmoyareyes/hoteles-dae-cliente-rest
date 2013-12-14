@@ -8,7 +8,7 @@
 <section class="panel panel-default">
     <div class="panel-heading">
         <h1>Realizar consultas</h1>
-        <a class="pull-right btn btn-success" href="/Hoteles-DAE-cliente-WS/operador/crearreserva">Crear reserva</a>
+        <a class="pull-right btn btn-success" href="/Hoteles-DAE-cliente-REST/operador/crearreserva">Crear reserva</a>
         <div class="clearfix"></div>
     </div>
     <div class="panel-body">
@@ -178,7 +178,7 @@
                                 <td>${u.precioDobles}€</td>
                                 <td>${u.precioTriples}€</td>
                                 <td>
-                                    <a class="label label-success" href="/Hoteles-DAE-cliente-WS/operador/crearreserva"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                    <a class="label label-success" href="/Hoteles-DAE-cliente-REST/operador/crearreserva"><i class="glyphicon glyphicon-plus-sign"></i></a>
                                 </td>
                             </tr>
                         </c:forEach>

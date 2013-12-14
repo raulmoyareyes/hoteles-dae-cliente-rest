@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/operador/cabecera.jspf"/>
 
 <!-- container -->
@@ -21,13 +22,13 @@
             <div class="form-group">
                 <label class="col-lg-2 control-label">Fecha de entrada</label>
                 <div class="col-lg-6">
-                    <input type="text" name="fechaentrada" class="form-control" value="${fn:substring(reserva.fechaEntrada, 0, 10)}"/> 
+                    <input type="text" name="fechaentrada" class="form-control" value='<fmt:formatDate value="${reserva.fechaEntrada}" pattern="yyyy-MM-dd" />'/> 
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-lg-2 control-label">Fecha de salida</label>
                 <div class="col-lg-6">
-                    <input type="text" name="fechasalida" class="form-control" value="${fn:substring(reserva.fechaSalida, 0, 10)}"/> 
+                    <input type="text" name="fechasalida" class="form-control" value='<fmt:formatDate value="${reserva.fechaSalida}" pattern="yyyy-MM-dd" />'/> 
                 </div>
             </div>
                 <div class="form-group">

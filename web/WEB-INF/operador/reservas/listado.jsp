@@ -9,7 +9,7 @@
 <section class="panel panel-default">
     <div class="panel-heading">
         <h1>Listado de reservas</h1>
-        <a class="pull-right btn btn-success" href="/Hoteles-DAE-cliente-WS/operador/crearreserva">Crear reserva</a>
+        <a class="pull-right btn btn-success" href="/Hoteles-DAE-cliente-REST/operador/crearreserva">Crear reserva</a>
         <div class="clearfix"></div>
     </div>
     <div class="panel-body">
@@ -43,8 +43,8 @@
                         <td>${r.hotel.nombre}</td>
                         <td>
                             <!--<a href="#modalElimina" data-toggle="modal" class="elimina"><i class="icon-remove"></i></a>-->
-                            <a href="/Hoteles-DAE-cliente-WS/operador/eliminarreserva?id=${r.id}"><i class="glyphicon glyphicon-remove"></i></a>
-                            <a href="/Hoteles-DAE-cliente-WS/operador/modificarreserva?id=${r.id}"><i class="glyphicon glyphicon-pencil"></i></a>
+                            <a href="/Hoteles-DAE-cliente-REST/operador/eliminarreserva?id=${r.id}"><i class="glyphicon glyphicon-remove"></i></a>
+                            <a href="/Hoteles-DAE-cliente-REST/operador/modificarreserva?id=${r.id}"><i class="glyphicon glyphicon-pencil"></i></a>
                         </td>
                     </tr>
                 </c:forEach>

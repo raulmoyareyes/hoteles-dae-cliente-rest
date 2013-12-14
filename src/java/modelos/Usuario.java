@@ -1,20 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package modelos;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
+ * Clase utilizada para crear usuarios
  *
- * @author raul
+ * @author Raúl & Gabri
  */
-@XmlRootElement
 public class Usuario {
-    
+
     private String dni;
     private String nombre;
     private String direccion;
@@ -40,29 +32,81 @@ public class Usuario {
     public Usuario() {
 
     }
-    
-    public String getDni() {
-        return dni;
-    }
 
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
+    /**
+     * Obtiene el valor del atributo nombre de tipo String.
+     *
+     * @return the nombre
+     */
     public String getNombre() {
         return nombre;
     }
 
+    /**
+     * Introduce el valor del parámetro en el atributo nombre. Requiere un tipo
+     * String.
+     *
+     * @param nombre the nombre to set
+     */
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
+    /**
+     * Obtiene el valor del atributo direccion de tipo String.
+     *
+     * @return the direccion
+     */
     public String getDireccion() {
         return direccion;
     }
 
+    /**
+     * Introduce el valor del parámetro en el atributo direccion. Requiere un
+     * tipo String.
+     *
+     * @param direccion the direccion to set
+     */
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
-    
+
+    /**
+     * Obtiene el valor del atributo dni de tipo String.
+     *
+     * @return the dni
+     */
+    public String getDni() {
+        return dni;
+    }
+
+    /**
+     * Introduce el valor del parámetro en el atributo dni. Requiere un tipo
+     * String.
+     *
+     * @param dni the dni to set
+     */
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
+    /**
+     * Devuelve un boolean. True si alguno de los atributos no ha sido
+     * inicializado. False si todos los atributos han sido inicializados.
+     *
+     * @return boolean
+     */
+    public Boolean hasEmptyFields() {
+        if (nombre.isEmpty()) {
+            return true;
+        } else if (direccion.isEmpty()) {
+            return true;
+        } else {
+            return dni.isEmpty();
+        }
+    }
+
+    public void validar() {
+
+    }
 }
