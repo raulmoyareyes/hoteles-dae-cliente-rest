@@ -45,7 +45,7 @@ public class Login extends HttpServlet {
         /// comprobaciones para redirigir
         if (request.getParameter("login") != null) {
 
-            WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/login").queryParam("usuario", request.getParameter("cif"));
+            WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/login").queryParam("usuario", request.getParameter("cif")).queryParam("pass", request.getParameter("pass"));
             ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
 
             Operador op = responseJSON.getEntity(Operador.class);

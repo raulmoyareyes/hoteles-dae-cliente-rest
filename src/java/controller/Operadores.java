@@ -8,6 +8,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.core.util.Base64;
 import com.sun.xml.xsom.impl.util.Uri;
 import java.io.IOException;
 import java.util.Date;
@@ -18,7 +19,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import modelos.Hotel;
+import modelos.Operador;
 import modelos.Reserva;
 import modelos.Usuario;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
@@ -48,13 +51,12 @@ public class Operadores extends HttpServlet {
         DefaultClientConfig defaultClientConfig = new DefaultClientConfig();
         defaultClientConfig.getClasses().add(JacksonJsonProvider.class);
         Client cliente = Client.create(defaultClientConfig);
-//        WebResource webResource = client.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/77358477R");
-//        ClientResponse responseJSON = webResource.accept("application/json").get(ClientResponse.class);
+
         switch (action) {
             case "/listadousuarios": {
 
                 WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios");
-                ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                ClientResponse responseJSON = recurso.accept("application/json").header("Authorization", "Basic " + new String(Base64.encode("11111111A:123456"))).get(ClientResponse.class);
                 List<Usuario> usuarios = responseJSON.getEntity(List.class);
                 request.setAttribute("usuarios", usuarios);
                 RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/operador/usuarios/listado.jsp");
