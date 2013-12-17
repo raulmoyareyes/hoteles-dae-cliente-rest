@@ -9,8 +9,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.core.util.Base64;
-import com.sun.xml.xsom.impl.util.Uri;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -19,7 +19,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import modelos.Hotel;
 import modelos.Operador;
 import modelos.Reserva;
@@ -51,12 +50,17 @@ public class Operadores extends HttpServlet {
         DefaultClientConfig defaultClientConfig = new DefaultClientConfig();
         defaultClientConfig.getClasses().add(JacksonJsonProvider.class);
         Client cliente = Client.create(defaultClientConfig);
+        WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos");
+        Operador op = (Operador) request.getSession().getAttribute("operador");
+        String auth = "Basic " + new String(Base64.encode(op.getCif()+":123456"));
 
         switch (action) {
             case "/listadousuarios": {
 
-                WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios");
-                ClientResponse responseJSON = recurso.accept("application/json").header("Authorization", "Basic " + new String(Base64.encode("11111111A:123456"))).get(ClientResponse.class);
+                ClientResponse responseJSON = recurso.path("/usuarios")
+                        .accept("application/json")
+                        .header("Authorization", auth)
+                        .get(ClientResponse.class);
                 List<Usuario> usuarios = responseJSON.getEntity(List.class);
                 request.setAttribute("usuarios", usuarios);
                 RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/operador/usuarios/listado.jsp");
@@ -70,8 +74,10 @@ public class Operadores extends HttpServlet {
                     String direccion = request.getParameter("direccion");
                     String dni = request.getParameter("dni");
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/" + dni);
-                    recurso.type("application/json").put(ClientResponse.class, new Usuario(nombre, direccion, dni));
+                    recurso.path("/usuarios/" + dni)
+                            .type("application/json")
+                            .header("Authorization", auth)
+                            .put(ClientResponse.class, new Usuario(nombre, direccion, dni));
 
                     response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadousuarios");
                 } else if (request.getParameter("cancelar") != null) {
@@ -89,17 +95,21 @@ public class Operadores extends HttpServlet {
                     String direccion = request.getParameter("direccion");
                     String dni = request.getParameter("dni");
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/" + dni);
-                    recurso.type("application/json").post(ClientResponse.class, new Usuario(nombre, direccion, dni));
+                    recurso.path("/usuarios/" + dni)
+                            .type("application/json")
+                            .header("Authorization", auth)
+                            .post(ClientResponse.class, new Usuario(nombre, direccion, dni));
 
                     response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadousuarios");
 
                 } else if (request.getParameter("cancelar") != null) {
                     response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadousuarios");
                 } else {
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/" + (String) request.getParameter("dni"));
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
 
+                    ClientResponse responseJSON = recurso.path("/usuarios/" + (String) request.getParameter("dni"))
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     Usuario usuario = responseJSON.getEntity(Usuario.class);
                     request.setAttribute("usuario", usuario);
                     RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/operador/usuarios/modificar.jsp");
@@ -109,9 +119,7 @@ public class Operadores extends HttpServlet {
             }
 
             case "/eliminarusuario": {
-                WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/" + (String) request.getParameter("dni"));
-                recurso.delete();
-
+                recurso.path("/usuarios/" + (String) request.getParameter("dni")).header("Authorization", auth).delete();
                 response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadousuarios");
                 break;
             }
@@ -121,8 +129,10 @@ public class Operadores extends HttpServlet {
                     request.setAttribute("tab", 1);
                     String ciudad = request.getParameter("buscar");
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/" + ciudad + "/hoteles");
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON = recurso.path("/busqueda/" + ciudad + "/hoteles")
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     List<Hotel> hoteles = responseJSON.getEntity(List.class);
 
                     request.setAttribute("hotelesc", hoteles);
@@ -132,8 +142,11 @@ public class Operadores extends HttpServlet {
                     request.setAttribute("tab", 2);
                     String hotel = request.getParameter("buscar");
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/hoteles/busqueda").queryParam("nombre", hotel);
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON = recurso.path("/hoteles/busqueda")
+                            .queryParam("nombre", hotel)
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     List<Hotel> hoteles = responseJSON.getEntity(List.class);
 
                     request.setAttribute("hotelesh", hoteles);
@@ -145,8 +158,12 @@ public class Operadores extends HttpServlet {
                     String fEntrada = request.getParameter("fechaEntrada");
                     String fSalida = request.getParameter("fechaSalida");
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/" + ciudad + "/hoteles").queryParam("entrada", fEntrada).queryParam("salida", fSalida);
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON = recurso.path("/busqueda/" + ciudad + "/hoteles")
+                            .queryParam("entrada", fEntrada)
+                            .queryParam("salida", fSalida)
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     List<Hotel> hoteles = responseJSON.getEntity(List.class);
 
                     request.setAttribute("hotelesf", hoteles);
@@ -170,8 +187,10 @@ public class Operadores extends HttpServlet {
             }
 
             case "/listadoreservas": {
-                WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/reservas");
-                ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                ClientResponse responseJSON = recurso.path("/reservas")
+                        .accept("application/json")
+                        .header("Authorization", auth)
+                        .get(ClientResponse.class);
                 List<Reserva> reservas = responseJSON.getEntity(List.class);
 
                 request.setAttribute("reservas", reservas);
@@ -192,16 +211,22 @@ public class Operadores extends HttpServlet {
                     Date fechaEntradaD = new Date(Integer.parseInt(fEntrada.substring(0, 4)) - 1900, Integer.parseInt(fEntrada.substring(5, 7)) - 1, Integer.parseInt(fEntrada.substring(8, 10)));
                     Date fechaSalidaD = new Date(Integer.parseInt(fSalida.substring(0, 4)) - 1900, Integer.parseInt(fSalida.substring(5, 7)) - 1, Integer.parseInt(fSalida.substring(8, 10)));
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/hoteles/" + Uri.escapeDisallowedChars(hotel));
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON = recurso.path("/hoteles/" + URLEncoder.encode(hotel, "UTF-8").replace("+", "%20"))
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     Hotel ho = responseJSON.getEntity(Hotel.class);
 
-                    WebResource recurso2 = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/" + dni);
-                    ClientResponse responseJSON2 = recurso2.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON2 = recurso.path("/usuarios/" + dni)
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     Usuario u = responseJSON2.getEntity(Usuario.class);
-
-                    WebResource recurso3 = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/reservas/");
-                    recurso3.type("application/json").put(ClientResponse.class, new Reserva(fechaEntradaD, fechaSalidaD, simples, dobles, triples, u, ho));
+                    
+                    recurso.path("/reservas")
+                            .type("application/json")
+                            .header("Authorization", auth)
+                            .put(ClientResponse.class, new Reserva(fechaEntradaD, fechaSalidaD, simples, dobles, triples, u, ho));
 
                     response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadoreservas");
                 } else if (request.getParameter("cancelar") != null) {
@@ -227,24 +252,32 @@ public class Operadores extends HttpServlet {
                     Date fechaEntradaD = new Date(Integer.parseInt(fEntrada.substring(0, 4)) - 1900, Integer.parseInt(fEntrada.substring(5, 7)) - 1, Integer.parseInt(fEntrada.substring(8, 10)));
                     Date fechaSalidaD = new Date(Integer.parseInt(fSalida.substring(0, 4)) - 1900, Integer.parseInt(fSalida.substring(5, 7)) - 1, Integer.parseInt(fSalida.substring(8, 10)));
 
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/hoteles/" + Uri.escapeDisallowedChars(hotel));
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON = recurso.path("/hoteles/" + URLEncoder.encode(hotel, "UTF-8").replace("+", "%20"))
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     Hotel ho = responseJSON.getEntity(Hotel.class);
 
-                    WebResource recurso2 = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/usuarios/" + usuario);
-                    ClientResponse responseJSON2 = recurso2.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON2 = recurso.path("/usuarios/" + usuario)
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     Usuario u = responseJSON2.getEntity(Usuario.class);
 
-                    WebResource recurso3 = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/reservas/");
-                    recurso3.type("application/json").put(ClientResponse.class, new Reserva(fechaEntradaD, fechaSalidaD, simples, dobles, triples, u, ho));
+                    recurso.path("/reservas/" + id)
+                            .type("application/json")
+                            .header("Authorization", auth)
+                            .post(ClientResponse.class, new Reserva(fechaEntradaD, fechaSalidaD, simples, dobles, triples, u, ho));
 
                     response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadoreservas");
 
                 } else if (request.getParameter("cancelar") != null) {
                     response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadoreservas");
                 } else {
-                    WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/reservas/" + request.getParameter("id"));
-                    ClientResponse responseJSON = recurso.accept("application/json").get(ClientResponse.class);
+                    ClientResponse responseJSON = recurso.path("/reservas/" + (String) request.getParameter("id"))
+                            .accept("application/json")
+                            .header("Authorization", auth)
+                            .get(ClientResponse.class);
                     Reserva reserva = responseJSON.getEntity(Reserva.class);
                     request.setAttribute("reserva", reserva);
                     RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/operador/reservas/modificar.jsp");
@@ -254,8 +287,7 @@ public class Operadores extends HttpServlet {
             }
 
             case "/eliminarreserva": {
-                WebResource recurso = cliente.resource("http://localhost:8080/Hoteles-DAE-REST/recursos/reservas/" + (String) request.getParameter("id"));
-                recurso.delete();
+                recurso.path("/reservas/" + (String) request.getParameter("id")).header("Authorization", auth).delete();
                 response.sendRedirect("/Hoteles-DAE-cliente-REST/operador/listadoreservas");
                 break;
             }
